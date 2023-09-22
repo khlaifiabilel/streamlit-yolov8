@@ -28,7 +28,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional, Union, cast
 
 import pandas as pd
 
-from streamlit.connections import ExperimentalBaseConnection
+from streamlit.connections import BaseConnection
 from streamlit.errors import StreamlitAPIException
 from streamlit.runtime.caching import cache_data
 
@@ -76,14 +76,14 @@ def _running_in_sis() -> bool:
     return not hasattr(snowflake.connector.connection, "SnowflakeConnection")
 
 
-class SnowparkConnection(ExperimentalBaseConnection["Session"]):
+class SnowparkConnection(BaseConnection["Session"]):
     """A connection to Snowpark using snowflake.snowpark.session.Session. Initialize using
-    ``st.experimental_connection("<name>", type="snowpark")``.
+    ``st.connection("<name>", type="snowpark")``.
 
     In addition to accessing the Snowpark Session, SnowparkConnection supports direct SQL querying using
     ``query("...")`` and thread safe access using ``with conn.safe_session():``. See methods
     below for more information. SnowparkConnections should always be created using
-    ``st.experimental_connection()``, **not** initialized directly.
+    ``st.connection()``, **not** initialized directly.
 
     .. note::
         We don't expect this iteration of SnowparkConnection to be able to scale
@@ -117,7 +117,7 @@ class SnowparkConnection(ExperimentalBaseConnection["Session"]):
             raise StreamlitAPIException(
                 "Missing Snowpark connection configuration. "
                 f"Did you forget to set this in `secrets.toml`, `{_DEFAULT_CONNECTION_FILE}`, "
-                "or as kwargs to `st.experimental_connection`?"
+                "or as kwargs to `st.connection`?"
             )
 
         for p in _REQUIRED_CONNECTION_PARAMS:
@@ -156,7 +156,7 @@ class SnowparkConnection(ExperimentalBaseConnection["Session"]):
         -------
         >>> import streamlit as st
         >>>
-        >>> conn = st.experimental_connection("snowpark")
+        >>> conn = st.connection("snowpark")
         >>> df = conn.query("select * from pet_owners")
         >>> st.dataframe(df)
         """
@@ -204,7 +204,7 @@ class SnowparkConnection(ExperimentalBaseConnection["Session"]):
         -------
         >>> import streamlit as st
         >>>
-        >>> session = st.experimental_connection("snowpark").session
+        >>> session = st.connection("snowpark").session
         >>> df = session.table("mytable").limit(10).to_pandas()
         >>> st.dataframe(df)
         """
@@ -227,7 +227,7 @@ class SnowparkConnection(ExperimentalBaseConnection["Session"]):
         -------
         >>> import streamlit as st
         >>>
-        >>> conn = st.experimental_connection("snowpark")
+        >>> conn = st.connection("snowpark")
         >>> with conn.safe_session() as session:
         ...     df = session.table("mytable").limit(10).to_pandas()
         ...
